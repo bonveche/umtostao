@@ -1,0 +1,1678 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1E2530">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Um Tostão — Investimentos</title>
+<style>
+:root {
+  /* Paleta principal — slate escuro + verde esmeralda como acento */
+  --accent:    #00C896;
+  --accent-d:  #00A07A;
+  --accent-l:  #E6FBF5;
+  --header-bg: #1E2530;
+  --header-2:  #252E3D;
+  --green:     #00C896;
+  --green-l:   #E6FBF5;
+  --red:       #FF5C6A;
+  --red-l:     #FFF0F1;
+  --blue:      #4A9EFF;
+  --blue-l:    #EBF4FF;
+  --yellow:    #FFB547;
+  --yellow-l:  #FFF8ED;
+  --purple:    #A78BFA;
+  --purple-l:  #F5F0FF;
+  --bg:        #F4F6F9;
+  --surface:   #FFFFFF;
+  --border:    #E4E8EF;
+  --text:      #1A2035;
+  --muted:     #8896A5;
+  --r:         16px;
+  --rsm:       10px;
+  --shadow:    0 1px 6px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 24px rgba(0,0,0,0.10);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+  background: var(--bg); color: var(--text); overflow: hidden; height: 100dvh;
+  letter-spacing: -0.01em;
+}
+
+#app { max-width: 480px; margin: 0 auto; height: 100dvh; overflow: hidden; display: flex; flex-direction: column; background: var(--bg); }
+
+/* SCREENS */
+.screen { display: none; flex-direction: column; height: 100dvh; overflow: hidden; }
+.screen.active { display: flex; }
+
+/* LOGIN */
+#screen-login {
+  background: var(--header-bg);
+  justify-content: center; align-items: center; padding: 40px 28px; overflow-y: auto;
+}
+.login-logo-wrap { text-align: center; margin-bottom: 40px; }
+.login-coin {
+  width: 80px; height: 80px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-d) 100%);
+  border-radius: 24px; display: flex; align-items: center; justify-content: center;
+  font-size: 36px; margin: 0 auto 16px; box-shadow: 0 8px 32px rgba(0,200,150,0.3);
+}
+.login-title { font-size: 26px; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
+.login-sub { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+.login-card {
+  background: var(--header-2); border-radius: 20px; padding: 24px;
+  width: 100%; max-width: 340px; border: 1px solid rgba(255,255,255,0.06);
+}
+.login-card-title { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.4); letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 16px; }
+.user-btns { display: flex; gap: 10px; margin-bottom: 0; }
+.user-btn { flex: 1; border: 1.5px solid rgba(255,255,255,0.1); border-radius: var(--r); padding: 14px 8px; text-align: center; cursor: pointer; transition: all .2s; }
+.user-btn.sel-d { border-color: var(--blue); background: rgba(74,158,255,0.15); }
+.user-btn.sel-p { border-color: var(--purple); background: rgba(167,139,250,0.15); }
+.user-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; margin: 0 auto 6px; }
+.user-avatar.d { background: rgba(74,158,255,0.2); color: var(--blue); }
+.user-avatar.p { background: rgba(167,139,250,0.2); color: var(--purple); }
+.user-name { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.8); }
+.pin-wrap { display: none; margin-top: 20px; }
+.pin-wrap.show { display: block; }
+.pin-label { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; text-align: center; margin-bottom: 12px; }
+.pin-dots { display: flex; justify-content: center; gap: 14px; margin-bottom: 20px; }
+.pin-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); transition: all .2s; }
+.pin-dot.filled { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 8px rgba(0,200,150,0.5); }
+.pin-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.pin-key { background: rgba(255,255,255,0.06); border-radius: 12px; padding: 14px; text-align: center; font-size: 20px; font-weight: 700; cursor: pointer; user-select: none; transition: background .1s; color: #fff; }
+.pin-key:active { background: rgba(255,255,255,0.15); }
+.pin-error { color: var(--red); font-size: 12px; text-align: center; margin-top: 10px; display: none; }
+
+/* APP HEADER — slate escuro */
+.app-header {
+  background: var(--header-bg);
+  padding: max(16px, env(safe-area-inset-top)) 16px 12px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.header-left { display: flex; align-items: center; gap: 10px; }
+.header-avatar {
+  width: 34px; height: 34px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-d) 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 800; color: #fff;
+}
+.header-name { font-size: 15px; font-weight: 800; color: #fff; }
+.header-sub { font-size: 11px; color: rgba(255,255,255,0.4); }
+.header-right { display: flex; gap: 8px; align-items: center; }
+.btn-icon {
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px; width: 34px; height: 34px;
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,0.7); font-size: 15px; cursor: pointer;
+}
+.sync-badge { font-size: 10px; color: var(--accent); font-weight: 700; }
+
+/* MONTH CHIPS */
+.month-scroll {
+  display: flex; gap: 6px; overflow-x: auto; padding: 10px 16px 8px;
+  background: var(--header-2); flex-shrink: 0; scrollbar-width: none;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.month-scroll::-webkit-scrollbar { display: none; }
+.month-chip {
+  flex-shrink: 0; padding: 5px 13px; border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.1); background: transparent;
+  font-size: 12px; font-weight: 600; cursor: pointer; color: rgba(255,255,255,0.5);
+  transition: all .2s;
+}
+.month-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+
+/* TAB BAR */
+.tab-bar {
+  display: flex; background: var(--surface);
+  border-bottom: 1px solid var(--border); flex-shrink: 0;
+  box-shadow: 0 1px 0 var(--border);
+}
+.tab-btn {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  padding: 8px 4px 6px; border: none; background: none; cursor: pointer;
+  color: var(--muted); font-size: 10px; font-weight: 600; gap: 2px; position: relative;
+}
+.tab-btn.active { color: var(--accent); }
+.tab-btn.active::after {
+  content: ''; position: absolute; bottom: 0; left: 20%; right: 20%;
+  height: 2px; background: var(--accent); border-radius: 2px 2px 0 0;
+}
+.tab-icon { font-size: 19px; }
+
+/* TAB PANES */
+.tab-content { flex: 1; overflow-y: auto; }
+.tab-pane { display: none; padding: 16px; }
+.tab-pane.active { display: block; }
+
+/* CARDS */
+.card { background: var(--surface); border-radius: var(--r); padding: 16px; box-shadow: var(--shadow); margin-bottom: 12px; }
+.card-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.section-title { font-size: 18px; font-weight: 800; margin-bottom: 4px; letter-spacing: -0.3px; }
+.section-sub { font-size: 12px; color: var(--muted); margin-bottom: 16px; }
+
+/* PATRIMÔNIO HERO — slate com destaque verde */
+.patrimonio-hero {
+  background: var(--header-bg);
+  border-radius: var(--r); padding: 22px 20px; margin-bottom: 12px;
+  box-shadow: var(--shadow-md); position: relative; overflow: hidden;
+}
+.patrimonio-hero::before {
+  content: ''; position: absolute; top: -30px; right: -30px;
+  width: 120px; height: 120px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,200,150,0.15) 0%, transparent 70%);
+}
+.patrimonio-label { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.4); letter-spacing: 1.2px; text-transform: uppercase; }
+.patrimonio-valor { font-size: 34px; font-weight: 900; color: #fff; margin: 6px 0 2px; letter-spacing: -1px; }
+.patrimonio-variacao { font-size: 13px; color: var(--accent); font-weight: 600; }
+
+/* KPIs */
+.kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.kpi {
+  background: var(--surface); border-radius: var(--r); padding: 14px;
+  box-shadow: var(--shadow); border: 1px solid var(--border);
+}
+.kpi-label { font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: .8px; text-transform: uppercase; margin-bottom: 6px; }
+.kpi-value { font-size: 17px; font-weight: 800; letter-spacing: -0.3px; }
+.kpi-value.green  { color: var(--green); }
+.kpi-value.red    { color: var(--red); }
+.kpi-value.orange { color: var(--accent); }
+.kpi-value.blue   { color: var(--blue); }
+
+/* BLOCOS */
+.bloco-card {
+  background: var(--surface); border-radius: var(--r); padding: 14px 16px;
+  box-shadow: var(--shadow); margin-bottom: 8px;
+  display: flex; align-items: center; gap: 12px;
+  border: 1px solid var(--border);
+}
+.bloco-icon { font-size: 22px; width: 38px; text-align: center; }
+.bloco-info { flex: 1; }
+.bloco-nome { font-size: 13px; font-weight: 700; }
+.bloco-valor { font-size: 15px; font-weight: 800; color: var(--text); margin-top: 2px; }
+.bloco-pct-wrap { text-align: right; }
+.bloco-pct-atual { font-size: 15px; font-weight: 800; }
+.bloco-pct-ideal { font-size: 10px; color: var(--muted); margin-top: 2px; }
+.bloco-bar-bg { height: 3px; background: var(--border); border-radius: 2px; margin-top: 8px; }
+.bloco-bar { height: 3px; border-radius: 2px; background: var(--accent); transition: width .4s; }
+
+/* ATIVO CARD */
+.ativo-card {
+  background: var(--surface); border-radius: var(--r); padding: 14px;
+  box-shadow: var(--shadow); margin-bottom: 8px; cursor: pointer;
+  border: 1px solid var(--border); transition: border-color .2s;
+}
+.ativo-card:active { border-color: var(--accent); }
+.ativo-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.ativo-ticker { font-size: 15px; font-weight: 800; letter-spacing: -0.2px; }
+.ativo-nome { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.ativo-preco { font-size: 15px; font-weight: 800; text-align: right; }
+.ativo-var { font-size: 11px; text-align: right; font-weight: 600; }
+.ativo-footer {
+  display: flex; justify-content: space-between; font-size: 11px; color: var(--muted);
+  padding-top: 8px; border-top: 1px solid var(--border);
+}
+.ativo-footer span { font-weight: 700; color: var(--text); }
+.tag-pl-pos { color: var(--green); font-weight: 700; }
+.tag-pl-neg { color: var(--red); font-weight: 700; }
+
+/* FORM */
+.form-group { margin-bottom: 14px; }
+.form-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; display: block; }
+.form-control {
+  width: 100%; padding: 12px 14px; border: 1.5px solid var(--border);
+  border-radius: var(--rsm); font-size: 15px; background: var(--surface);
+  color: var(--text); outline: none; transition: border-color .2s;
+}
+.form-control:focus { border-color: var(--accent); }
+.valor-big {
+  background: linear-gradient(135deg, #1E2530 0%, #252E3D 100%);
+  border-radius: var(--r); padding: 20px; text-align: center; margin-bottom: 14px;
+  border: 1px solid rgba(0,200,150,0.2);
+}
+.valor-big-label { font-size: 10px; font-weight: 700; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+.valor-big-input {
+  font-size: 36px; font-weight: 900; color: #fff; background: transparent;
+  border: none; outline: none; text-align: center; width: 100%; letter-spacing: -1px;
+}
+
+/* TOGGLE BUTTONS */
+.toggle-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.toggle-btn {
+  padding: 7px 14px; border-radius: 20px; border: 1.5px solid var(--border);
+  background: transparent; font-size: 13px; font-weight: 600; cursor: pointer;
+  color: var(--text); white-space: nowrap; transition: all .15s;
+}
+.toggle-btn.active-orange { background: var(--accent); border-color: var(--accent); color: #fff; }
+.toggle-btn.active-blue   { background: var(--blue); border-color: var(--blue); color: #fff; }
+.toggle-btn.active-green  { background: var(--green); border-color: var(--green); color: #fff; }
+
+/* BUTTONS */
+.btn-primary {
+  width: 100%; padding: 15px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-d) 100%);
+  color: #fff; border: none; border-radius: var(--r);
+  font-size: 16px; font-weight: 800; cursor: pointer; margin-top: 8px;
+  letter-spacing: -0.2px; box-shadow: 0 4px 16px rgba(0,200,150,0.3);
+}
+.btn-primary:disabled { opacity: .5; box-shadow: none; }
+.btn-secondary {
+  width: 100%; padding: 12px; background: transparent; color: var(--accent);
+  border: 1.5px solid var(--accent); border-radius: var(--r);
+  font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 8px;
+}
+
+/* GRÁFICO */
+.chart-wrap { background: var(--surface); border-radius: var(--r); padding: 16px; box-shadow: var(--shadow); margin-bottom: 12px; border: 1px solid var(--border); }
+.chart-filters { display: flex; gap: 6px; margin-bottom: 14px; }
+.chart-filter {
+  padding: 4px 12px; border-radius: 20px; border: 1.5px solid var(--border);
+  font-size: 12px; font-weight: 700; cursor: pointer; background: transparent; color: var(--muted);
+  transition: all .15s;
+}
+.chart-filter.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.chart-svg { width: 100%; height: 140px; }
+
+/* MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; display: flex; align-items: flex-end; backdrop-filter: blur(4px); }
+.modal-overlay.hidden { display: none; }
+.modal { background: var(--surface); border-radius: 24px 24px 0 0; padding: 20px 20px 36px; width: 100%; max-height: 90dvh; overflow-y: auto; }
+.modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 16px; }
+.modal-title { font-size: 18px; font-weight: 800; margin-bottom: 4px; letter-spacing: -0.3px; }
+.modal-sub { font-size: 12px; color: var(--muted); margin-bottom: 16px; }
+.modal-close { position: absolute; top: 16px; right: 16px; background: var(--bg); border: none; border-radius: 50%; width: 28px; height: 28px; font-size: 14px; cursor: pointer; }
+
+/* SUB MENU (Mais) */
+.mais-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.mais-card {
+  background: var(--surface); border-radius: var(--r); padding: 20px;
+  text-align: center; cursor: pointer; box-shadow: var(--shadow);
+  border: 1.5px solid var(--border); transition: all .2s;
+}
+.mais-card.active { border-color: var(--accent); background: var(--accent-l); }
+.mais-card-icon { font-size: 26px; margin-bottom: 8px; }
+.mais-card-label { font-size: 13px; font-weight: 700; }
+.sub-pane { display: none; }
+.sub-pane.active { display: block; }
+.config-item {
+  background: var(--surface); border-radius: var(--r); padding: 16px;
+  margin-bottom: 10px; box-shadow: var(--shadow); border: 1px solid var(--border);
+}
+.config-label { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.config-desc { font-size: 12px; color: var(--muted); }
+.config-input {
+  width: 100%; padding: 10px 12px; border: 1.5px solid var(--border);
+  border-radius: var(--rsm); font-size: 14px; background: var(--surface);
+  color: var(--text); outline: none; margin-top: 8px;
+}
+.config-input:focus { border-color: var(--accent); }
+
+/* WATCHLIST */
+.watch-card {
+  background: var(--surface); border-radius: var(--r); padding: 14px;
+  box-shadow: var(--shadow); margin-bottom: 8px; display: flex; align-items: center; gap: 12px;
+  border: 1px solid var(--border);
+}
+.watch-ticker { font-size: 15px; font-weight: 800; min-width: 60px; }
+.watch-nome { font-size: 11px; color: var(--muted); }
+.watch-preco { font-size: 15px; font-weight: 800; }
+.watch-var-pos { font-size: 12px; font-weight: 700; color: var(--green); }
+.watch-var-neg { font-size: 12px; font-weight: 700; color: var(--red); }
+
+/* PROVENTOS */
+.provento-card {
+  background: var(--surface); border-radius: var(--r); padding: 12px 14px;
+  box-shadow: var(--shadow); margin-bottom: 8px;
+  display: flex; justify-content: space-between; align-items: center;
+  border: 1px solid var(--border);
+}
+.provento-ticker { font-size: 14px; font-weight: 800; }
+.provento-data { font-size: 11px; color: var(--muted); }
+.provento-valor { font-size: 16px; font-weight: 800; color: var(--green); }
+
+/* REBALANCEAMENTO */
+.rebal-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.rebal-nome { font-size: 13px; font-weight: 700; }
+.rebal-vals { text-align: right; font-size: 12px; }
+.rebal-status-ok { color: var(--green); font-weight: 700; font-size: 11px; }
+.rebal-status-up { color: var(--red); font-weight: 700; font-size: 11px; }
+.rebal-status-dn { color: var(--yellow); font-weight: 700; font-size: 11px; }
+
+/* EMPTY STATE */
+.empty-state { text-align: center; padding: 40px 20px; }
+.empty-icon { font-size: 48px; margin-bottom: 12px; }
+.empty-text { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--header-bg); color: #fff; padding: 10px 20px; border-radius: 20px;
+  font-size: 13px; font-weight: 600; opacity: 0; transition: all .3s; z-index: 999;
+  pointer-events: none; white-space: nowrap; border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ══ LOGIN ══ -->
+<div id="screen-login" class="screen active">
+  <div class="login-logo-wrap">
+    <div class="login-coin">📈</div>
+    <div class="login-title">Um Tostão</div>
+    <div class="login-sub">Acompanhamento de carteira</div>
+  </div>
+  <div class="login-card">
+    <div class="login-card-title">Quem vai entrar?</div>
+    <div class="user-btns">
+      <div class="user-btn" id="btn-d" onclick="selUser('Douglas')">
+        <div class="user-avatar d">D</div>
+        <div class="user-name">Douglas</div>
+      </div>
+      <div class="user-btn" id="btn-p" onclick="selUser('Priscila')">
+        <div class="user-avatar p">P</div>
+        <div class="user-name">Priscila</div>
+      </div>
+    </div>
+    <div class="pin-wrap" id="pin-wrap">
+      <div class="pin-label" style="margin-top:16px">Digite seu PIN</div>
+      <div class="pin-dots" id="pin-dots">
+        <div class="pin-dot" id="dot-0"></div>
+        <div class="pin-dot" id="dot-1"></div>
+        <div class="pin-dot" id="dot-2"></div>
+        <div class="pin-dot" id="dot-3"></div>
+      </div>
+      <div class="pin-keypad">
+        <div class="pin-key" onclick="pinPress('1')">1</div>
+        <div class="pin-key" onclick="pinPress('2')">2</div>
+        <div class="pin-key" onclick="pinPress('3')">3</div>
+        <div class="pin-key" onclick="pinPress('4')">4</div>
+        <div class="pin-key" onclick="pinPress('5')">5</div>
+        <div class="pin-key" onclick="pinPress('6')">6</div>
+        <div class="pin-key" onclick="pinPress('7')">7</div>
+        <div class="pin-key" onclick="pinPress('8')">8</div>
+        <div class="pin-key" onclick="pinPress('9')">9</div>
+        <div class="pin-key del" onclick="pinDel()">⌫</div>
+        <div class="pin-key" onclick="pinPress('0')">0</div>
+        <div class="pin-key enter" onclick="doLogin()">→</div>
+      </div>
+      <div class="pin-error" id="pin-error">PIN incorreto.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="screen-app" class="screen">
+
+  <!-- Header -->
+  <div class="app-header">
+    <div class="header-left">
+      <div class="header-avatar" id="h-avatar">D</div>
+      <div>
+        <div class="header-name" id="h-name">Douglas</div>
+        <div class="header-sub">Investimentos</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="sync-badge" id="sync-badge">✅ Atualizado</span>
+      <button class="btn-icon" onclick="syncCotacoes()" title="Atualizar cotações">🔄</button>
+      <button class="btn-icon" onclick="logout()">⏻</button>
+    </div>
+  </div>
+
+  <!-- Chips de mês -->
+  <div class="month-scroll" id="month-chips"></div>
+
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('inicio',this)">
+      <span class="tab-icon">📊</span>Início
+    </button>
+    <button class="tab-btn" onclick="switchTab('lancar',this)">
+      <span class="tab-icon">➕</span>Lançar
+    </button>
+    <button class="tab-btn" onclick="switchTab('carteira',this)">
+      <span class="tab-icon">💼</span>Carteira
+    </button>
+    <button class="tab-btn" onclick="switchTab('proventos',this)">
+      <span class="tab-icon">💰</span>Proventos
+    </button>
+    <button class="tab-btn" onclick="switchTab('mais',this)">
+      <span class="tab-icon">☰</span>Mais
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div class="tab-content">
+
+    <!-- ── INÍCIO ── -->
+    <div id="tab-inicio" class="tab-pane active">
+
+      <!-- Patrimônio hero -->
+      <div class="patrimonio-hero">
+        <div class="patrimonio-label">Patrimônio Total</div>
+        <div class="patrimonio-valor" id="dash-patrimonio">R$ 0,00</div>
+        <div class="patrimonio-variacao" id="dash-variacao">↑ R$ 0,00 hoje</div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="kpi-label">📈 Lucro/Prejuízo</div>
+          <div class="kpi-value" id="dash-pl">R$ 0,00</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">💰 Proventos (mês)</div>
+          <div class="kpi-value green" id="dash-proventos-mes">R$ 0,00</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">💵 Aportado total</div>
+          <div class="kpi-value blue" id="dash-aportado">R$ 0,00</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">📊 Rentabilidade</div>
+          <div class="kpi-value orange" id="dash-rentab">0,00%</div>
+        </div>
+      </div>
+
+      <!-- Distribuição por bloco -->
+      <div class="card-label" style="margin-bottom:8px">DISTRIBUIÇÃO DA CARTEIRA</div>
+      <div id="dash-blocos"></div>
+
+      <!-- Rebalanceamento -->
+      <div class="card" id="rebal-card" style="display:none">
+        <div class="card-label">⚖️ REBALANCEAMENTO</div>
+        <div id="rebal-lista"></div>
+        <div style="margin-top:12px;font-size:12px;color:var(--muted)" id="rebal-sugestao"></div>
+      </div>
+
+    </div>
+
+    <!-- ── LANÇAR ── -->
+    <div id="tab-lancar" class="tab-pane">
+      <div class="section-title">Lançar operação 📋</div>
+      <div class="section-sub">Registre uma movimentação na carteira</div>
+
+      <!-- Tipo de operação -->
+      <div class="form-group">
+        <label class="form-label">OPERAÇÃO</label>
+        <div class="toggle-row">
+          <button class="toggle-btn active-orange" onclick="setOp('compra',this)">🛒 Compra</button>
+          <button class="toggle-btn" onclick="setOp('venda',this)">💸 Venda</button>
+          <button class="toggle-btn" onclick="setOp('aporte',this)">💵 Aporte</button>
+          <button class="toggle-btn" onclick="setOp('resgate',this)">🏧 Resgate</button>
+          <button class="toggle-btn" onclick="setOp('provento',this)">🎁 Provento</button>
+        </div>
+      </div>
+
+      <!-- Bloco/Classe -->
+      <div class="form-group" id="f-bloco-wrap">
+        <label class="form-label">CLASSE DE ATIVO</label>
+        <div class="toggle-row" id="f-bloco-btns">
+          <button class="toggle-btn active-blue" onclick="setBloco('rv',this)">📈 Renda Variável</button>
+          <button class="toggle-btn" onclick="setBloco('td',this)">🏛️ Tesouro</button>
+          <button class="toggle-btn" onclick="setBloco('rf',this)">🏦 Renda Fixa</button>
+          <button class="toggle-btn" onclick="setBloco('cx',this)">💧 Caixinha</button>
+        </div>
+      </div>
+
+      <!-- Ticker / Nome do ativo -->
+      <div class="form-group" id="f-ticker-wrap">
+        <label class="form-label">TICKER / ATIVO</label>
+        <input type="text" class="form-control" id="f-ticker" placeholder="Ex: PETR4, KNRI11, BOVA11" oninput="this.value=this.value.toUpperCase()">
+      </div>
+
+      <!-- Nome descritivo (para renda fixa/caixinha) -->
+      <div class="form-group" id="f-nome-wrap" style="display:none">
+        <label class="form-label">NOME DO INVESTIMENTO</label>
+        <input type="text" class="form-control" id="f-nome" placeholder="Ex: CDB Nubank 120% CDI">
+      </div>
+
+      <!-- Data -->
+      <div class="form-group">
+        <label class="form-label">DATA</label>
+        <input type="date" class="form-control" id="f-data">
+      </div>
+
+      <!-- Valor -->
+      <div class="valor-big">
+        <div class="valor-big-label">VALOR TOTAL (R$)</div>
+        <input type="number" inputmode="decimal" step="0.01" min="0" class="valor-big-input" id="f-valor" placeholder="0,00">
+      </div>
+
+      <!-- Quantidade (compra/venda) -->
+      <div class="form-group" id="f-qtd-wrap">
+        <label class="form-label">QUANTIDADE</label>
+        <input type="number" inputmode="decimal" class="form-control" id="f-qtd" placeholder="Nº de cotas/ações">
+      </div>
+
+      <!-- Preço unitário (compra/venda) -->
+      <div class="form-group" id="f-preco-wrap">
+        <label class="form-label">PREÇO UNITÁRIO (R$)</label>
+        <input type="number" inputmode="decimal" step="0.01" class="form-control" id="f-preco" placeholder="0,00" oninput="calcValorTotal()">
+      </div>
+
+      <!-- Taxa (renda fixa/caixinha) -->
+      <div class="form-group" id="f-taxa-wrap" style="display:none">
+        <label class="form-label">TAXA (% do CDI ou % a.a.)</label>
+        <input type="number" inputmode="decimal" step="0.01" class="form-control" id="f-taxa" placeholder="Ex: 120">
+      </div>
+
+      <!-- Indexador -->
+      <div class="form-group" id="f-index-wrap" style="display:none">
+        <label class="form-label">INDEXADOR</label>
+        <select class="form-control" id="f-index">
+          <option value="CDI">CDI</option>
+          <option value="IPCA">IPCA+</option>
+          <option value="prefixado">Prefixado</option>
+          <option value="SELIC">Selic</option>
+        </select>
+      </div>
+
+      <!-- Vencimento (renda fixa) -->
+      <div class="form-group" id="f-venc-wrap" style="display:none">
+        <label class="form-label">VENCIMENTO</label>
+        <input type="date" class="form-control" id="f-venc">
+      </div>
+
+      <!-- Instituição -->
+      <div class="form-group" id="f-inst-wrap" style="display:none">
+        <label class="form-label">INSTITUIÇÃO</label>
+        <input type="text" class="form-control" id="f-inst" placeholder="Ex: Nubank, XP, BTG">
+      </div>
+
+      <!-- Descrição -->
+      <div class="form-group">
+        <label class="form-label">DESCRIÇÃO (opcional)</label>
+        <input type="text" class="form-control" id="f-desc" placeholder="Observações sobre a operação">
+      </div>
+
+      <button class="btn-primary" id="btn-salvar" onclick="salvarOperacao()">Salvar operação</button>
+    </div>
+
+    <!-- ── CARTEIRA ── -->
+    <div id="tab-carteira" class="tab-pane">
+      <div class="section-title">Minha Carteira 💼</div>
+      <div class="section-sub">Posição atual por ativo</div>
+
+      <!-- Filtro por bloco -->
+      <div class="toggle-row" style="margin-bottom:14px">
+        <button class="toggle-btn active-orange" onclick="filtrarCarteira('todos',this)">Todos</button>
+        <button class="toggle-btn" onclick="filtrarCarteira('rv',this)">📈 RV</button>
+        <button class="toggle-btn" onclick="filtrarCarteira('td',this)">🏛️ Tesouro</button>
+        <button class="toggle-btn" onclick="filtrarCarteira('rf',this)">🏦 RF</button>
+        <button class="toggle-btn" onclick="filtrarCarteira('cx',this)">💧 Caixinha</button>
+      </div>
+
+      <div id="carteira-list"></div>
+    </div>
+
+    <!-- ── PROVENTOS ── -->
+    <div id="tab-proventos" class="tab-pane">
+      <div class="section-title">Proventos 💰</div>
+      <div class="section-sub">Dividendos e rendimentos recebidos</div>
+
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="kpi-label">📅 Este mês</div>
+          <div class="kpi-value green" id="prov-mes">R$ 0,00</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">📆 Este ano</div>
+          <div class="kpi-value green" id="prov-ano">R$ 0,00</div>
+        </div>
+      </div>
+
+      <div class="card-label" style="margin-bottom:8px">HISTÓRICO</div>
+      <div id="proventos-list"></div>
+    </div>
+
+    <!-- ── MAIS ── -->
+    <div id="tab-mais" class="tab-pane">
+      <div class="section-title">Mais</div>
+      <div class="section-sub">Ferramentas e configurações</div>
+
+      <div class="mais-grid">
+        <div class="mais-card" onclick="switchSub('watchlist',this)">
+          <div class="mais-card-icon">👁️</div>
+          <div class="mais-card-label">Watchlist</div>
+        </div>
+        <div class="mais-card" onclick="switchSub('rebalanceamento',this)">
+          <div class="mais-card-icon">⚖️</div>
+          <div class="mais-card-label">Rebalancear</div>
+        </div>
+        <div class="mais-card" onclick="switchSub('alocacao',this)">
+          <div class="mais-card-icon">🎯</div>
+          <div class="mais-card-label">Alocação Ideal</div>
+        </div>
+        <div class="mais-card" onclick="switchSub('config',this)">
+          <div class="mais-card-icon">⚙️</div>
+          <div class="mais-card-label">Config</div>
+        </div>
+      </div>
+
+      <!-- Watchlist -->
+      <div id="sub-watchlist" class="sub-pane">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div class="card-label" style="margin:0">👁️ WATCHLIST</div>
+          <button onclick="abrirModal('modal-add-watch')" style="background:var(--orange);color:#fff;border:none;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer">+ Adicionar</button>
+        </div>
+        <div id="watchlist-list"></div>
+      </div>
+
+      <!-- Rebalanceamento -->
+      <div id="sub-rebalanceamento" class="sub-pane">
+        <div class="card-label" style="margin-bottom:12px">⚖️ REBALANCEAMENTO</div>
+        <div id="sub-rebal-lista"></div>
+        <div style="margin-top:12px;padding:14px;background:var(--orange-l);border-radius:var(--rsm);font-size:13px;color:var(--orange);font-weight:600" id="sub-rebal-sugestao"></div>
+      </div>
+
+      <!-- Alocação Ideal -->
+      <div id="sub-alocacao" class="sub-pane">
+        <div class="card-label" style="margin-bottom:8px">🎯 ALOCAÇÃO IDEAL (%)</div>
+        <div class="config-item">
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:13px;font-weight:700">📈 Renda Variável</span>
+              <input type="number" class="config-input" id="aloc-rv" style="width:70px;text-align:center;margin:0" placeholder="%" min="0" max="100" oninput="calcAlocTotal()">
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:13px;font-weight:700">🏛️ Tesouro Direto</span>
+              <input type="number" class="config-input" id="aloc-td" style="width:70px;text-align:center;margin:0" placeholder="%" min="0" max="100" oninput="calcAlocTotal()">
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:13px;font-weight:700">🏦 Renda Fixa</span>
+              <input type="number" class="config-input" id="aloc-rf" style="width:70px;text-align:center;margin:0" placeholder="%" min="0" max="100" oninput="calcAlocTotal()">
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:13px;font-weight:700">💧 Caixinha</span>
+              <input type="number" class="config-input" id="aloc-cx" style="width:70px;text-align:center;margin:0" placeholder="%" min="0" max="100" oninput="calcAlocTotal()">
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid var(--border)">
+              <span style="font-size:13px;font-weight:700;color:var(--muted)">Total</span>
+              <span style="font-size:15px;font-weight:800" id="aloc-total">0%</span>
+            </div>
+          </div>
+          <button class="btn-primary" onclick="salvarAlocacao()">Salvar alocação</button>
+        </div>
+      </div>
+
+      <!-- Config -->
+      <div id="sub-config" class="sub-pane">
+        <div class="config-item">
+          <div class="config-label">🔗 URL do Apps Script</div>
+          <div class="config-desc">URL da planilha de investimentos com GOOGLEFINANCE.</div>
+          <input type="url" class="config-input" id="cfg-url" placeholder="https://script.google.com/macros/s/…/exec">
+          <button class="btn-primary" style="margin-top:10px" onclick="salvarConfig()">Salvar e testar</button>
+        </div>
+        <div class="config-item">
+          <div class="config-label">💹 CDI atual (% a.a.)</div>
+          <div class="config-desc">Atualiza quando o Copom mudar. Só afeta rendimentos futuros.</div>
+          <input type="number" class="config-input" id="cfg-cdi" placeholder="Ex: 13.75" step="0.01">
+          <button class="btn-primary" style="margin-top:10px" onclick="salvarCDI()">Salvar CDI</button>
+        </div>
+        <div class="config-item">
+          <div class="config-label">🔐 Alterar PINs</div>
+          <div class="config-desc">PIN padrão: 1234 (Douglas) · 5678 (Priscila)</div>
+          <input type="number" class="config-input" id="cfg-pin-d" placeholder="Novo PIN Douglas" style="margin-bottom:8px">
+          <input type="number" class="config-input" id="cfg-pin-p" placeholder="Novo PIN Priscila">
+          <button class="btn-primary" style="margin-top:10px;background:var(--purple)" onclick="salvarPins()">Salvar PINs</button>
+        </div>
+        <div style="text-align:center;padding:20px 0;color:var(--muted);font-size:11px">Um Tostão v1.0 · Douglas & Priscila · 2026</div>
+      </div>
+
+    </div><!-- fim tab-mais -->
+  </div><!-- fim tab-content -->
+</div><!-- fim screen-app -->
+
+<!-- ══ MODAL: Detalhe do Ativo ══ -->
+<div class="modal-overlay hidden" id="modal-ativo">
+  <div class="modal" style="position:relative">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="fecharModal('modal-ativo')">✕</button>
+    <div class="modal-title" id="modal-ativo-ticker">PETR4</div>
+    <div class="modal-sub" id="modal-ativo-nome">Petrobras PN</div>
+
+    <div class="kpi-grid" style="margin-bottom:12px">
+      <div class="kpi">
+        <div class="kpi-label">Preço atual</div>
+        <div class="kpi-value orange" id="modal-preco-atual">—</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Preço médio</div>
+        <div class="kpi-value" id="modal-preco-medio">—</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Quantidade</div>
+        <div class="kpi-value" id="modal-qtd">—</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">P&L</div>
+        <div class="kpi-value" id="modal-pl">—</div>
+      </div>
+    </div>
+
+    <!-- Gráfico histórico -->
+    <div class="chart-wrap" style="margin-bottom:0">
+      <div class="chart-filters" id="modal-chart-filters">
+        <button class="chart-filter" onclick="setChartPeriod('1S',this)">1S</button>
+        <button class="chart-filter active" onclick="setChartPeriod('1M',this)">1M</button>
+        <button class="chart-filter" onclick="setChartPeriod('6M',this)">6M</button>
+        <button class="chart-filter" onclick="setChartPeriod('1A',this)">1A</button>
+        <button class="chart-filter" onclick="setChartPeriod('MAX',this)">MAX</button>
+      </div>
+      <svg class="chart-svg" id="modal-chart-svg" viewBox="0 0 320 140" preserveAspectRatio="none">
+        <text x="160" y="75" text-anchor="middle" fill="#ccc" font-size="12">Carregando...</text>
+      </svg>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:4px">
+        <span id="chart-label-min"></span>
+        <span id="chart-label-max"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: Add Watchlist ══ -->
+<div class="modal-overlay hidden" id="modal-add-watch">
+  <div class="modal" style="position:relative">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="fecharModal('modal-add-watch')">✕</button>
+    <div class="modal-title">Adicionar à Watchlist</div>
+    <div class="modal-sub">Acompanhe um ativo sem ter posição</div>
+    <div class="form-group">
+      <label class="form-label">TICKER</label>
+      <input type="text" class="form-control" id="watch-ticker-input" placeholder="Ex: VALE3, MXRF11" oninput="this.value=this.value.toUpperCase()">
+    </div>
+    <div class="form-group">
+      <label class="form-label">NOME (opcional)</label>
+      <input type="text" class="form-control" id="watch-nome-input" placeholder="Ex: Vale ON">
+    </div>
+    <button class="btn-primary" onclick="adicionarWatch()">Adicionar</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// CONSTANTS
+// ══════════════════════════════════════════════════════════
+const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const MES_ATUAL = MESES[new Date().getMonth()];
+const ANO_ATUAL = new Date().getFullYear();
+
+const BLOCOS = {
+  rv: { nome: 'Renda Variável', icon: '📈' },
+  td: { nome: 'Tesouro Direto', icon: '🏛️' },
+  rf: { nome: 'Renda Fixa',     icon: '🏦' },
+  cx: { nome: 'Caixinha',       icon: '💧' },
+};
+
+// ══════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════
+const state = {
+  user:        null,
+  selMonth:    MES_ATUAL,
+  _pinBuffer:  '',
+  _selUser:    null,
+  _op:         'compra',
+  _bloco:      'rv',
+  _carteiraFiltro: 'todos',
+  _aticvoDetalhe: null,
+  _chartPeriod: '1M',
+  operacoes:   JSON.parse(localStorage.getItem('tostao_operacoes')   || '[]'),
+  watchlist:   JSON.parse(localStorage.getItem('tostao_watchlist')   || '[]'),
+  alocacao:    JSON.parse(localStorage.getItem('tostao_alocacao')    || '{"rv":25,"td":25,"rf":25,"cx":25}'),
+  cotacoes:    JSON.parse(localStorage.getItem('tostao_cotacoes')    || '{}'),
+  cdiHistory:  JSON.parse(localStorage.getItem('tostao_cdi_history') || '[]'), // [{data, valor}]
+  pins:        JSON.parse(localStorage.getItem('tostao_pins')        || '{"Douglas":"1234","Priscila":"5678"}'),
+  scriptUrl:   localStorage.getItem('tostao_script_url') || '',
+  _syncInterval: null,
+};
+
+// CDI atual (última entrada do histórico)
+function getCDIAtual() {
+  if(!state.cdiHistory.length) return 13.75; // padrão
+  return state.cdiHistory[state.cdiHistory.length - 1].valor;
+}
+
+// ══════════════════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════════════════
+function fmt(v)    { return 'R$ '+(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmtPct(v) { return (v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'%'; }
+function fmtQtd(v) { return (v||0).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:4}); }
+
+function showToast(msg, tipo='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = tipo === 'error' ? '#E74C3C' : '#1A1A2E';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function showSync(msg) {
+  document.getElementById('sync-badge').textContent = msg;
+}
+
+function abrirModal(id)  { document.getElementById(id).classList.remove('hidden'); }
+function fecharModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ══════════════════════════════════════════════════════════
+// LOGIN
+// ══════════════════════════════════════════════════════════
+function selUser(nome) {
+  state._selUser = nome;
+  state._pinBuffer = '';
+  document.querySelectorAll('.user-btn').forEach(b => b.className = 'user-btn');
+  document.getElementById('btn-' + nome[0].toLowerCase()).classList.add('sel-' + nome[0].toLowerCase());
+  document.getElementById('pin-wrap').classList.add('show');
+  document.getElementById('pin-error').style.display = 'none';
+  atualizarDots();
+}
+
+function pinPress(d) {
+  if(state._pinBuffer.length >= 4) return;
+  state._pinBuffer += d;
+  atualizarDots();
+  if(state._pinBuffer.length === 4) setTimeout(doLogin, 100);
+}
+
+function pinDel() {
+  state._pinBuffer = state._pinBuffer.slice(0,-1);
+  atualizarDots();
+}
+
+function atualizarDots() {
+  for(let i=0;i<4;i++) {
+    const d = document.getElementById('dot-'+i);
+    if(d) d.className = 'pin-dot' + (i < state._pinBuffer.length ? ' filled' : '');
+  }
+}
+
+function doLogin() {
+  if(!state._selUser || state._pinBuffer.length < 4) return;
+  if(state._pinBuffer === state.pins[state._selUser]) {
+    state.user = state._selUser;
+    document.getElementById('pin-error').style.display = 'none';
+    showScreen('screen-app');
+    initApp();
+  } else {
+    document.getElementById('pin-error').style.display = 'block';
+    state._pinBuffer = '';
+    atualizarDots();
+  }
+}
+
+function logout() {
+  state.user = null; state._pinBuffer = ''; state._selUser = null;
+  if(state._syncInterval) clearInterval(state._syncInterval);
+  document.querySelectorAll('.user-btn').forEach(b => b.className = 'user-btn');
+  document.getElementById('pin-wrap').classList.remove('show');
+  atualizarDots();
+  showScreen('screen-login');
+}
+
+// ══════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════
+function initApp() {
+  document.getElementById('h-avatar').textContent = state.user[0];
+  document.getElementById('h-name').textContent   = state.user;
+  document.getElementById('f-data').value = new Date().toISOString().split('T')[0];
+  if(state.scriptUrl) document.getElementById('cfg-url').value = state.scriptUrl;
+  const cdi = document.getElementById('cfg-cdi');
+  if(cdi) cdi.value = getCDIAtual();
+  buildChips();
+  carregarAlocacao();
+  renderDashboard();
+  renderCarteira();
+  renderProventos();
+  renderWatchlist();
+  if(state.scriptUrl) syncCotacoes();
+  if(state._syncInterval) clearInterval(state._syncInterval);
+  state._syncInterval = setInterval(syncCotacoes, 300000); // 5min
+}
+
+function buildChips() {
+  const wrap = document.getElementById('month-chips');
+  wrap.innerHTML = MESES.map(m =>
+    `<button class="month-chip ${m===state.selMonth?'active':''}" onclick="selMonth('${m}',this)">${m.slice(0,3)}</button>`
+  ).join('');
+}
+
+function selMonth(mes, btn) {
+  state.selMonth = mes;
+  document.querySelectorAll('.month-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderDashboard();
+  renderProventos();
+}
+
+// ══════════════════════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════════════════════
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+  if(name === 'carteira') renderCarteira();
+  if(name === 'proventos') renderProventos();
+  if(name === 'mais') renderMais();
+}
+
+function switchSub(name, card) {
+  document.querySelectorAll('.mais-card').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.sub-pane').forEach(p => p.classList.remove('active'));
+  if(card) card.classList.add('active');
+  const sub = document.getElementById('sub-'+name);
+  if(sub) sub.classList.add('active');
+  if(name === 'watchlist') renderWatchlist();
+  if(name === 'rebalanceamento') renderRebalSub();
+  if(name === 'alocacao') carregarAlocacao();
+  if(name === 'config') {
+    const u = document.getElementById('cfg-url'); if(u) u.value = state.scriptUrl||'';
+    const c = document.getElementById('cfg-cdi'); if(c) c.value = getCDIAtual();
+  }
+}
+
+function renderMais() {
+  // reset sub panes
+  document.querySelectorAll('.mais-card').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.sub-pane').forEach(p => p.classList.remove('active'));
+}
+
+// ══════════════════════════════════════════════════════════
+// CÁLCULOS DE CARTEIRA
+// ══════════════════════════════════════════════════════════
+
+// Retorna posição consolidada por ticker
+function calcPosicoes() {
+  const pos = {}; // ticker -> {bloco, qtd, custoTotal, proventos}
+
+  state.operacoes.forEach(op => {
+    const key = op.ticker || op.nome;
+    if(!pos[key]) pos[key] = { bloco: op.bloco, nome: op.nome||op.ticker, ticker: op.ticker, qtd: 0, custoTotal: 0, proventos: 0 };
+
+    if(op.op === 'compra' || op.op === 'aporte') {
+      pos[key].qtd        += parseFloat(op.qtd || 1);
+      pos[key].custoTotal += parseFloat(op.valor);
+    }
+    if(op.op === 'venda' || op.op === 'resgate') {
+      const pmAtual = pos[key].qtd > 0 ? pos[key].custoTotal / pos[key].qtd : 0;
+      const qtdVend = parseFloat(op.qtd || pos[key].qtd);
+      pos[key].qtd        -= qtdVend;
+      pos[key].custoTotal -= pmAtual * qtdVend;
+      if(pos[key].qtd <= 0) { pos[key].qtd = 0; pos[key].custoTotal = 0; }
+    }
+    if(op.op === 'provento') {
+      pos[key].proventos += parseFloat(op.valor);
+    }
+  });
+
+  // Remove posições zeradas
+  Object.keys(pos).forEach(k => { if(pos[k].qtd === 0 && pos[k].custoTotal === 0) delete pos[k]; });
+  return pos;
+}
+
+function precoMedio(pos) {
+  return pos.qtd > 0 ? pos.custoTotal / pos.qtd : 0;
+}
+
+function valorAtual(pos) {
+  const cot = state.cotacoes[pos.ticker];
+  if(pos.bloco === 'rv' || pos.bloco === 'td') {
+    return cot ? pos.qtd * cot : pos.custoTotal;
+  }
+  // Renda fixa e caixinha: calcula rendimento acumulado
+  return calcRendimentoRF(pos);
+}
+
+function calcRendimentoRF(pos) {
+  // Para cada operação de aporte desta posição, calcula rendimento com a taxa da época e CDI histórico
+  let total = 0;
+  state.operacoes.filter(op => (op.ticker||op.nome) === pos.ticker && (op.op==='aporte'||op.op==='compra')).forEach(op => {
+    const dataOp = new Date(op.data);
+    const hoje   = new Date();
+    const dias   = Math.floor((hoje - dataOp) / (1000*60*60*24));
+    // Usa CDI válido na data do aporte (pega o CDI histórico mais próximo anterior)
+    const cdiNaData = getCDInaData(op.data);
+    const taxaAnual = (parseFloat(op.taxa||0) / 100) * (cdiNaData / 100);
+    const rendimento = parseFloat(op.valor) * (Math.pow(1 + taxaAnual, dias/365) - 1);
+    total += parseFloat(op.valor) + rendimento;
+  });
+  // Subtrai resgates
+  state.operacoes.filter(op => (op.ticker||op.nome) === pos.ticker && op.op==='resgate').forEach(op => {
+    total -= parseFloat(op.valor);
+  });
+  return Math.max(0, total);
+}
+
+function getCDInaData(data) {
+  // Retorna o CDI vigente na data informada
+  const hist = state.cdiHistory.filter(h => h.data <= data).sort((a,b) => b.data.localeCompare(a.data));
+  return hist.length ? hist[0].valor : 13.75;
+}
+
+function patrimonioTotal() {
+  const pos = calcPosicoes();
+  return Object.values(pos).reduce((s, p) => s + valorAtual(p), 0);
+}
+
+function patrimonioBloco(bloco) {
+  const pos = calcPosicoes();
+  return Object.values(pos).filter(p => p.bloco === bloco).reduce((s, p) => s + valorAtual(p), 0);
+}
+
+function totalAportado() {
+  return state.operacoes
+    .filter(op => op.op === 'compra' || op.op === 'aporte')
+    .reduce((s, op) => s + parseFloat(op.valor), 0)
+  - state.operacoes
+    .filter(op => op.op === 'venda' || op.op === 'resgate')
+    .reduce((s, op) => s + parseFloat(op.valor), 0);
+}
+
+function totalProventosMes(mes) {
+  return state.operacoes
+    .filter(op => op.op === 'provento' && op.mes === mes)
+    .reduce((s, op) => s + parseFloat(op.valor), 0);
+}
+
+function totalProventosAno() {
+  return state.operacoes
+    .filter(op => op.op === 'provento' && op.data && op.data.startsWith(ANO_ATUAL.toString()))
+    .reduce((s, op) => s + parseFloat(op.valor), 0);
+}
+
+// ══════════════════════════════════════════════════════════
+// RENDER DASHBOARD
+// ══════════════════════════════════════════════════════════
+function renderDashboard() {
+  const total    = patrimonioTotal();
+  const aportado = totalAportado();
+  const pl       = total - aportado;
+  const rentab   = aportado > 0 ? (pl / aportado * 100) : 0;
+  const provMes  = totalProventosMes(state.selMonth);
+
+  document.getElementById('dash-patrimonio').textContent = fmt(total);
+  document.getElementById('dash-pl').textContent         = fmt(pl);
+  document.getElementById('dash-pl').className           = 'kpi-value ' + (pl >= 0 ? 'green' : 'red');
+  document.getElementById('dash-proventos-mes').textContent = fmt(provMes);
+  document.getElementById('dash-aportado').textContent   = fmt(aportado);
+  document.getElementById('dash-rentab').textContent     = fmtPct(rentab);
+  document.getElementById('dash-variacao').textContent   = pl >= 0
+    ? `↑ ${fmt(pl)} total` : `↓ ${fmt(Math.abs(pl))} total`;
+
+  // Blocos
+  const bWrap = document.getElementById('dash-blocos');
+  bWrap.innerHTML = Object.entries(BLOCOS).map(([key, b]) => {
+    const val   = patrimonioBloco(key);
+    const pctAt = total > 0 ? val / total * 100 : 0;
+    const pctId = state.alocacao[key] || 0;
+    const barW  = Math.min(100, pctAt);
+    const cor   = Math.abs(pctAt - pctId) <= 2 ? 'var(--green)' : pctAt > pctId ? 'var(--red)' : 'var(--orange)';
+    return `<div class="bloco-card">
+      <div class="bloco-icon">${b.icon}</div>
+      <div class="bloco-info">
+        <div class="bloco-nome">${b.nome}</div>
+        <div class="bloco-valor">${fmt(val)}</div>
+        <div class="bloco-bar-bg"><div class="bloco-bar" style="width:${barW}%;background:${cor}"></div></div>
+      </div>
+      <div class="bloco-pct-wrap">
+        <div class="bloco-pct-atual" style="color:${cor}">${fmtPct(pctAt)}</div>
+        <div class="bloco-pct-ideal">meta: ${pctId}%</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  renderRebalDash();
+}
+
+function renderRebalDash() {
+  const total = patrimonioTotal();
+  if(total === 0) { document.getElementById('rebal-card').style.display='none'; return; }
+  document.getElementById('rebal-card').style.display='block';
+  const linhas = Object.entries(BLOCOS).map(([key, b]) => {
+    const val   = patrimonioBloco(key);
+    const pctAt = total > 0 ? val/total*100 : 0;
+    const pctId = state.alocacao[key] || 0;
+    const diff  = pctAt - pctId;
+    const status = Math.abs(diff) <= 2 ? `<span class="rebal-status-ok">✅ Ok</span>`
+      : diff > 0 ? `<span class="rebal-status-up">⬆️ +${diff.toFixed(1)}%</span>`
+      : `<span class="rebal-status-dn">⬇️ ${diff.toFixed(1)}%</span>`;
+    return `<div class="rebal-row">
+      <div class="rebal-nome">${b.icon} ${b.nome}</div>
+      <div class="rebal-vals">${fmtPct(pctAt)} / ${pctId}% ${status}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('rebal-lista').innerHTML = linhas;
+
+  // Sugestão
+  const abaixo = Object.entries(BLOCOS)
+    .filter(([key]) => (patrimonioBloco(key)/total*100) < (state.alocacao[key]||0) - 2)
+    .map(([, b]) => b.nome);
+  document.getElementById('rebal-sugestao').textContent = abaixo.length
+    ? '💡 Próximo aporte: priorize ' + abaixo.join(', ')
+    : '✅ Carteira equilibrada!';
+}
+
+// ══════════════════════════════════════════════════════════
+// RENDER CARTEIRA
+// ══════════════════════════════════════════════════════════
+function filtrarCarteira(filtro, btn) {
+  state._carteiraFiltro = filtro;
+  document.querySelectorAll('#tab-carteira .toggle-btn').forEach(b => b.classList.remove('active-orange'));
+  if(btn) btn.classList.add('active-orange');
+  renderCarteira();
+}
+
+function renderCarteira() {
+  const pos  = calcPosicoes();
+  const list = document.getElementById('carteira-list');
+  let ativos = Object.values(pos);
+  if(state._carteiraFiltro !== 'todos') ativos = ativos.filter(p => p.bloco === state._carteiraFiltro);
+
+  if(!ativos.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">💼</div><div class="empty-text">Nenhum ativo encontrado.<br>Lance sua primeira operação!</div></div>`;
+    return;
+  }
+
+  list.innerHTML = ativos.map(p => {
+    const pm    = precoMedio(p);
+    const va    = valorAtual(p);
+    const pl    = va - p.custoTotal;
+    const plPct = p.custoTotal > 0 ? pl/p.custoTotal*100 : 0;
+    const cot   = state.cotacoes[p.ticker];
+    const varDia = state.cotacoes[p.ticker+'_var'] || 0;
+    const plClass = pl >= 0 ? 'tag-pl-pos' : 'tag-pl-neg';
+    const isRV = p.bloco === 'rv';
+
+    return `<div class="ativo-card" onclick="abrirDetalheAtivo('${p.ticker||p.nome}')">
+      <div class="ativo-header">
+        <div>
+          <div class="ativo-ticker">${p.ticker||p.nome} <span style="font-size:10px;background:var(--orange-l);color:var(--orange);padding:2px 6px;border-radius:8px;font-weight:600">${BLOCOS[p.bloco]?.icon} ${BLOCOS[p.bloco]?.nome}</span></div>
+          <div class="ativo-nome">${p.nome||''}</div>
+        </div>
+        <div>
+          <div class="ativo-preco">${isRV && cot ? fmt(cot) : fmt(va)}</div>
+          ${isRV ? `<div class="ativo-var ${varDia>=0?'tag-pl-pos':'tag-pl-neg'}">${varDia>=0?'↑':'↓'} ${Math.abs(varDia).toFixed(2)}%</div>` : '<div class="ativo-var" style="color:var(--muted)">rendimento</div>'}
+        </div>
+      </div>
+      <div class="ativo-footer">
+        <div>Qtd: <span>${fmtQtd(p.qtd)}</span></div>
+        <div>PM: <span>${fmt(pm)}</span></div>
+        <div>Total: <span>${fmt(va)}</span></div>
+        <div class="${plClass}">${pl>=0?'+':''}${fmtPct(plPct)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════════
+// DETALHE ATIVO + GRÁFICO
+// ══════════════════════════════════════════════════════════
+function abrirDetalheAtivo(ticker) {
+  const pos = calcPosicoes()[ticker];
+  if(!pos) return;
+  state._ativoDetalhe = ticker;
+  state._chartPeriod  = '1M';
+
+  document.getElementById('modal-ativo-ticker').textContent = pos.ticker || pos.nome;
+  document.getElementById('modal-ativo-nome').textContent   = pos.nome || '';
+  const cot  = state.cotacoes[ticker] || precoMedio(pos);
+  const va   = valorAtual(pos);
+  const pl   = va - pos.custoTotal;
+  const plPct= pos.custoTotal > 0 ? pl/pos.custoTotal*100 : 0;
+
+  document.getElementById('modal-preco-atual').textContent = fmt(cot);
+  document.getElementById('modal-preco-medio').textContent = fmt(precoMedio(pos));
+  document.getElementById('modal-qtd').textContent         = fmtQtd(pos.qtd);
+  document.getElementById('modal-pl').textContent          = `${pl>=0?'+':''}${fmtPct(plPct)}`;
+  document.getElementById('modal-pl').className            = 'kpi-value ' + (pl>=0?'green':'red');
+
+  document.querySelectorAll('#modal-chart-filters .chart-filter').forEach(b => {
+    b.classList.toggle('active', b.textContent === '1M');
+  });
+
+  abrirModal('modal-ativo');
+  carregarGrafico(ticker, '1M');
+}
+
+async function setChartPeriod(period, btn) {
+  state._chartPeriod = period;
+  document.querySelectorAll('#modal-chart-filters .chart-filter').forEach(b => b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  if(state._ativoDetalhe) await carregarGrafico(state._ativoDetalhe, period);
+}
+
+async function carregarGrafico(ticker, period) {
+  const svg = document.getElementById('modal-chart-svg');
+  svg.innerHTML = `<text x="160" y="75" text-anchor="middle" fill="#ccc" font-size="12">Carregando...</text>`;
+
+  const periodMap = {
+    '1S': 7, '1M': 30, '6M': 180, '1A': 365, 'MAX': 1825
+  };
+  const dias = periodMap[period] || 30;
+  const fim  = new Date();
+  const ini  = new Date(fim.getTime() - dias * 24*60*60*1000);
+  const fmtD = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
+  if(!state.scriptUrl) {
+    desenharGrafico(svg, gerarDadosFake(dias), ticker);
+    return;
+  }
+
+  try {
+    const url = `${state.scriptUrl}?action=historico&ticker=BVMF:${ticker}&inicio=${fmtD(ini)}&fim=${fmtD(fim)}`;
+    const resp = await fetch(url);
+    const data = await resp.json();
+    if(data.status === 'ok' && data.precos?.length) {
+      desenharGrafico(svg, data.precos, ticker);
+    } else {
+      desenharGrafico(svg, gerarDadosFake(dias), ticker);
+    }
+  } catch(e) {
+    desenharGrafico(svg, gerarDadosFake(dias), ticker);
+  }
+}
+
+function gerarDadosFake(dias) {
+  // Dados placeholder enquanto sem conexão
+  const pts = [];
+  let v = 30 + Math.random()*20;
+  for(let i=0; i<Math.min(dias,60); i++) {
+    v += (Math.random()-0.48)*1.2;
+    pts.push(Math.max(1, v));
+  }
+  return pts;
+}
+
+function desenharGrafico(svg, precos, ticker) {
+  if(!precos || !precos.length) {
+    svg.innerHTML = `<text x="160" y="75" text-anchor="middle" fill="#ccc" font-size="12">Sem dados</text>`;
+    return;
+  }
+  const W = 320, H = 140, pad = 10;
+  const min = Math.min(...precos);
+  const max = Math.max(...precos);
+  const range = max - min || 1;
+  const pts   = precos.map((v, i) => {
+    const x = pad + (i / (precos.length-1)) * (W - pad*2);
+    const y = H - pad - ((v-min)/range) * (H - pad*2);
+    return `${x},${y}`;
+  });
+
+  const ultimo = precos[precos.length-1];
+  const primeiro = precos[0];
+  const cor = ultimo >= primeiro ? '#27AE60' : '#E74C3C';
+
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="grd" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${cor}" stop-opacity="0.3"/>
+        <stop offset="100%" stop-color="${cor}" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <polygon points="${pts.join(' ')} ${W-pad},${H-pad} ${pad},${H-pad}" fill="url(#grd)"/>
+    <polyline points="${pts.join(' ')}" fill="none" stroke="${cor}" stroke-width="2" stroke-linejoin="round"/>
+    <circle cx="${pts[pts.length-1].split(',')[0]}" cy="${pts[pts.length-1].split(',')[1]}" r="4" fill="${cor}"/>
+  `;
+
+  document.getElementById('chart-label-min').textContent = fmt(min);
+  document.getElementById('chart-label-max').textContent = fmt(max);
+}
+
+// ══════════════════════════════════════════════════════════
+// RENDER PROVENTOS
+// ══════════════════════════════════════════════════════════
+function renderProventos() {
+  const provMes = totalProventosMes(state.selMonth);
+  const provAno = totalProventosAno();
+  document.getElementById('prov-mes').textContent = fmt(provMes);
+  document.getElementById('prov-ano').textContent = fmt(provAno);
+
+  const lista = state.operacoes
+    .filter(op => op.op === 'provento')
+    .sort((a,b) => b.data?.localeCompare(a.data||'') || 0);
+
+  const list = document.getElementById('proventos-list');
+  if(!lista.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">💰</div><div class="empty-text">Nenhum provento lançado ainda.</div></div>`;
+    return;
+  }
+  list.innerHTML = lista.map(op => `
+    <div class="provento-card">
+      <div class="provento-left">
+        <div class="provento-ticker">${op.ticker||op.nome}</div>
+        <div class="provento-data">${op.data||''} · ${op.desc||'Dividendo'}</div>
+      </div>
+      <div class="provento-valor">${fmt(parseFloat(op.valor))}</div>
+    </div>
+  `).join('');
+}
+
+// ══════════════════════════════════════════════════════════
+// WATCHLIST
+// ══════════════════════════════════════════════════════════
+function renderWatchlist() {
+  const list = document.getElementById('watchlist-list');
+  if(!state.watchlist.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">👁️</div><div class="empty-text">Nenhum ativo na watchlist.<br>Adicione tickers para acompanhar.</div></div>`;
+    return;
+  }
+  list.innerHTML = state.watchlist.map((w, i) => {
+    const cot = state.cotacoes[w.ticker] || 0;
+    const varD = state.cotacoes[w.ticker+'_var'] || 0;
+    return `<div class="watch-card">
+      <div style="flex:1">
+        <div class="watch-ticker">${w.ticker}</div>
+        <div class="watch-nome">${w.nome||''}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="watch-preco">${cot ? fmt(cot) : '—'}</div>
+        <div class="${varD>=0?'watch-var-pos':'watch-var-neg'}">${varD>=0?'↑':'↓'} ${Math.abs(varD).toFixed(2)}%</div>
+      </div>
+      <button onclick="removerWatch(${i})" style="background:var(--red-l);color:var(--red);border:none;border-radius:50%;width:28px;height:28px;font-size:12px;cursor:pointer;flex-shrink:0">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function adicionarWatch() {
+  const ticker = document.getElementById('watch-ticker-input').value.trim().toUpperCase();
+  const nome   = document.getElementById('watch-nome-input').value.trim();
+  if(!ticker) { showToast('Digite o ticker!','error'); return; }
+  if(state.watchlist.find(w => w.ticker === ticker)) { showToast('Já está na watchlist!','error'); return; }
+  state.watchlist.push({ ticker, nome });
+  localStorage.setItem('tostao_watchlist', JSON.stringify(state.watchlist));
+  document.getElementById('watch-ticker-input').value = '';
+  document.getElementById('watch-nome-input').value   = '';
+  fecharModal('modal-add-watch');
+  renderWatchlist();
+  showToast('✅ Adicionado!');
+  if(state.scriptUrl) syncCotacoes();
+}
+
+function removerWatch(i) {
+  state.watchlist.splice(i, 1);
+  localStorage.setItem('tostao_watchlist', JSON.stringify(state.watchlist));
+  renderWatchlist();
+}
+
+// ══════════════════════════════════════════════════════════
+// REBALANCEAMENTO (sub)
+// ══════════════════════════════════════════════════════════
+function renderRebalSub() {
+  const total = patrimonioTotal();
+  const sub   = document.getElementById('sub-rebal-lista');
+  const sug   = document.getElementById('sub-rebal-sugestao');
+  if(total === 0) { sub.innerHTML = '<div class="empty-text">Lance operações para ver o rebalanceamento.</div>'; return; }
+
+  sub.innerHTML = Object.entries(BLOCOS).map(([key, b]) => {
+    const val   = patrimonioBloco(key);
+    const pctAt = total > 0 ? val/total*100 : 0;
+    const pctId = state.alocacao[key] || 0;
+    const diff  = pctAt - pctId;
+    const status = Math.abs(diff) <= 2 ? '✅ Ok'
+      : diff > 0 ? `⬆️ +${diff.toFixed(1)}%` : `⬇️ ${diff.toFixed(1)}%`;
+    return `<div class="rebal-row">
+      <div><div class="rebal-nome">${b.icon} ${b.nome}</div><div style="font-size:11px;color:var(--muted)">${fmt(val)}</div></div>
+      <div class="rebal-vals">${fmtPct(pctAt)} / meta ${pctId}%<br><strong>${status}</strong></div>
+    </div>`;
+  }).join('');
+
+  const abaixo = Object.entries(BLOCOS)
+    .filter(([key]) => (patrimonioBloco(key)/total*100) < (state.alocacao[key]||0) - 2)
+    .map(([,b]) => b.nome);
+  sug.textContent = abaixo.length
+    ? '💡 Próximo aporte: priorize ' + abaixo.join(', ')
+    : '✅ Carteira equilibrada!';
+}
+
+// ══════════════════════════════════════════════════════════
+// LANÇAR OPERAÇÃO
+// ══════════════════════════════════════════════════════════
+function setOp(op, btn) {
+  state._op = op;
+  document.querySelectorAll('#tab-lancar .toggle-btn').forEach(b => b.classList.remove('active-orange'));
+  if(btn) btn.classList.add('active-orange');
+  atualizarCamposLancar();
+}
+
+function setBloco(bloco, btn) {
+  state._bloco = bloco;
+  document.querySelectorAll('#f-bloco-btns .toggle-btn').forEach(b => b.classList.remove('active-blue'));
+  if(btn) btn.classList.add('active-blue');
+  atualizarCamposLancar();
+}
+
+function atualizarCamposLancar() {
+  const op    = state._op;
+  const bloco = state._bloco;
+  const isRV  = bloco === 'rv';
+  const isTD  = bloco === 'td';
+  const isRF  = bloco === 'rf';
+  const isCX  = bloco === 'cx';
+  const isCompraVenda = op === 'compra' || op === 'venda';
+  const isAporteResgate = op === 'aporte' || op === 'resgate';
+  const isProvento = op === 'provento';
+
+  // Bloco só aparece se não for provento (provento usa o ticker da carteira)
+  document.getElementById('f-bloco-wrap').style.display = isProvento ? 'none' : 'block';
+
+  // Ticker para RV/TD, nome para RF/CX
+  document.getElementById('f-ticker-wrap').style.display = (isRV || isTD || isProvento) ? 'block' : 'none';
+  document.getElementById('f-nome-wrap').style.display   = (isRF || isCX) && !isProvento ? 'block' : 'none';
+
+  // Quantidade e preço só para compra/venda de RV
+  const showQtd = isCompraVenda && isRV;
+  document.getElementById('f-qtd-wrap').style.display   = showQtd ? 'block' : 'none';
+  document.getElementById('f-preco-wrap').style.display = showQtd ? 'block' : 'none';
+
+  // Taxa e indexador para RF/CX em aporte
+  const showTaxa = (isRF || isCX) && op === 'aporte';
+  document.getElementById('f-taxa-wrap').style.display  = showTaxa ? 'block' : 'none';
+  document.getElementById('f-index-wrap').style.display = (isRF || isTD) && op === 'aporte' ? 'block' : 'none';
+
+  // Vencimento e instituição para RF
+  document.getElementById('f-venc-wrap').style.display  = isRF && op === 'aporte' ? 'block' : 'none';
+  document.getElementById('f-inst-wrap').style.display  = (isRF || isCX) ? 'block' : 'none';
+}
+
+function calcValorTotal() {
+  const qtd   = parseFloat(document.getElementById('f-qtd').value)   || 0;
+  const preco = parseFloat(document.getElementById('f-preco').value) || 0;
+  if(qtd && preco) document.getElementById('f-valor').value = (qtd * preco).toFixed(2);
+}
+
+async function salvarOperacao() {
+  const data  = document.getElementById('f-data').value;
+  const valor = parseFloat(document.getElementById('f-valor').value);
+  if(!data || !valor || valor <= 0) { showToast('Preencha data e valor!','error'); return; }
+
+  const bloco  = state._bloco;
+  const op     = state._op;
+  const isRV   = bloco === 'rv' || op === 'provento';
+  const ticker = document.getElementById('f-ticker').value.trim().toUpperCase();
+  const nome   = document.getElementById('f-nome').value.trim();
+  const qtd    = parseFloat(document.getElementById('f-qtd').value) || 1;
+  const preco  = parseFloat(document.getElementById('f-preco').value) || valor;
+  const taxa   = document.getElementById('f-taxa').value;
+  const index  = document.getElementById('f-index').value;
+  const venc   = document.getElementById('f-venc').value;
+  const inst   = document.getElementById('f-inst').value.trim();
+  const desc   = document.getElementById('f-desc').value.trim();
+  const mes    = MESES[new Date(data+'T00:00:00').getMonth()];
+
+  if(isRV && !ticker) { showToast('Informe o ticker!','error'); return; }
+  if(!isRV && !nome && op !== 'provento') { showToast('Informe o nome do investimento!','error'); return; }
+
+  const lancamento = {
+    id:        Date.now(),
+    data, mes, op, bloco,
+    ticker:    isRV ? ticker : (nome||ticker),
+    nome:      nome || ticker,
+    qtd:       (op==='compra'||op==='venda') ? qtd : 1,
+    valor:     valor.toFixed(2),
+    preco:     preco.toFixed(2),
+    taxa:      taxa || '',
+    indexador: index || '',
+    vencimento: venc || '',
+    inst:      inst || '',
+    desc:      desc || '',
+    lancadoPor: state.user,
+    timestamp:  new Date().toISOString(),
+    origem:    'investimentos', // para futura integração com app financeiro
+  };
+
+  state.operacoes.push(lancamento);
+  localStorage.setItem('tostao_operacoes', JSON.stringify(state.operacoes));
+
+  // Reset form
+  document.getElementById('f-valor').value = '';
+  document.getElementById('f-qtd').value   = '';
+  document.getElementById('f-preco').value = '';
+  document.getElementById('f-desc').value  = '';
+  document.getElementById('f-taxa').value  = '';
+  document.getElementById('f-venc').value  = '';
+  document.getElementById('f-inst').value  = '';
+  document.getElementById('f-ticker').value = '';
+  document.getElementById('f-nome').value  = '';
+
+  showToast('✅ Operação salva!');
+  renderDashboard();
+  if(state.scriptUrl) enviarParaSheets(lancamento);
+
+  // Vai para a carteira
+  switchTab('carteira', document.querySelectorAll('.tab-btn')[2]);
+}
+
+// ══════════════════════════════════════════════════════════
+// ALOCAÇÃO
+// ══════════════════════════════════════════════════════════
+function carregarAlocacao() {
+  const a = state.alocacao;
+  ['rv','td','rf','cx'].forEach(k => {
+    const el = document.getElementById('aloc-'+k);
+    if(el) el.value = a[k] || 0;
+  });
+  calcAlocTotal();
+}
+
+function calcAlocTotal() {
+  const total = ['rv','td','rf','cx'].reduce((s,k) => {
+    return s + (parseFloat(document.getElementById('aloc-'+k)?.value)||0);
+  }, 0);
+  const el = document.getElementById('aloc-total');
+  if(el) {
+    el.textContent = total + '%';
+    el.style.color = total > 100 ? 'var(--red)' : total === 100 ? 'var(--green)' : 'var(--orange)';
+  }
+}
+
+function salvarAlocacao() {
+  const total = ['rv','td','rf','cx'].reduce((s,k) => s+(parseFloat(document.getElementById('aloc-'+k)?.value)||0), 0);
+  if(total !== 100) { showToast('Total deve ser 100%!','error'); return; }
+  ['rv','td','rf','cx'].forEach(k => {
+    state.alocacao[k] = parseFloat(document.getElementById('aloc-'+k).value)||0;
+  });
+  localStorage.setItem('tostao_alocacao', JSON.stringify(state.alocacao));
+  showToast('✅ Alocação salva!');
+  renderDashboard();
+}
+
+// ══════════════════════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════════════════════
+function salvarConfig() {
+  const url = document.getElementById('cfg-url').value.trim();
+  state.scriptUrl = url;
+  localStorage.setItem('tostao_script_url', url);
+  showToast(url ? '✅ URL salva!' : '⚠️ URL removida.');
+  if(url) syncCotacoes();
+}
+
+function salvarCDI() {
+  const val = parseFloat(document.getElementById('cfg-cdi').value);
+  if(!val || val <= 0) { showToast('CDI inválido!','error'); return; }
+  const entrada = { data: new Date().toISOString().split('T')[0], valor: val };
+  state.cdiHistory.push(entrada);
+  localStorage.setItem('tostao_cdi_history', JSON.stringify(state.cdiHistory));
+  showToast('✅ CDI atualizado! Rendimentos futuros usarão ' + val + '% a.a.');
+  renderCarteira();
+  renderDashboard();
+}
+
+function salvarPins() {
+  const d = document.getElementById('cfg-pin-d').value.trim();
+  const p = document.getElementById('cfg-pin-p').value.trim();
+  if(d && d.length === 4) state.pins.Douglas  = d;
+  if(p && p.length === 4) state.pins.Priscila = p;
+  localStorage.setItem('tostao_pins', JSON.stringify(state.pins));
+  showToast('✅ PINs salvos!');
+}
+
+// ══════════════════════════════════════════════════════════
+// SYNC / COTAÇÕES via Apps Script + GOOGLEFINANCE
+// ══════════════════════════════════════════════════════════
+async function syncCotacoes() {
+  if(!state.scriptUrl) return;
+  showSync('🔄 Atualizando…');
+
+  // Coleta todos os tickers (carteira + watchlist)
+  const pos = calcPosicoes();
+  const tickers = [
+    ...Object.values(pos).filter(p => p.bloco === 'rv').map(p => p.ticker),
+    ...state.watchlist.map(w => w.ticker),
+  ].filter(Boolean);
+
+  if(!tickers.length) { showSync('✅ Atualizado'); return; }
+
+  try {
+    const url = `${state.scriptUrl}?action=cotacoes&tickers=${tickers.map(t=>'BVMF:'+t).join(',')}`;
+    const resp = await fetch(url);
+    const data = await resp.json();
+    if(data.status === 'ok' && data.cotacoes) {
+      Object.entries(data.cotacoes).forEach(([ticker, info]) => {
+        const t = ticker.replace('BVMF:','');
+        state.cotacoes[t]       = info.preco;
+        state.cotacoes[t+'_var']= info.variacao || 0;
+      });
+      localStorage.setItem('tostao_cotacoes', JSON.stringify(state.cotacoes));
+    }
+    showSync('✅ Atualizado');
+  } catch(e) {
+    showSync('⚠️ Offline');
+  }
+
+  renderDashboard();
+  renderCarteira();
+  renderWatchlist();
+}
+
+async function enviarParaSheets(lancamento) {
+  if(!state.scriptUrl) return;
+  try {
+    const p = new URLSearchParams({action:'appendInv', ...lancamento});
+    await fetch(state.scriptUrl+'?'+p.toString(), {mode:'no-cors'});
+  } catch(e) {}
+}
+</script>
+</div><!-- fim app -->
+</body>
+</html>
